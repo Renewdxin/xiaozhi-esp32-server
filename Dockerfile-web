@@ -1,17 +1,31 @@
 # 第一阶段：构建Vue前端
-FROM node:18 as web-builder
+FROM node:20-alpine as web-builder
 WORKDIR /app
+
+# 设置 npm 镜像源
+RUN npm config set registry https://registry.npmmirror.com
+
+# 复制依赖文件并安装依赖 (利用缓存)
 COPY main/manager-web/package*.json ./
-RUN npm install
+# 使用 legacy-peer-deps 防止因依赖冲突导致安装失败，这对旧项目很常见
+RUN npm install --legacy-peer-deps
+
+# 复制源码并构建 (由于 .dockerignore 排除了 node_modules，这里不会覆盖已安装的依赖)
 COPY main/manager-web .
 RUN npm run build
 
 # 第二阶段：构建Java后端
-FROM maven:3.9.4-eclipse-temurin-21 as api-builder
+FROM maven:3.9-eclipse-temurin-21-alpine as api-builder
 WORKDIR /app
-COPY main/manager-api/pom.xml .
-COPY main/manager-api/src ./src
-RUN mvn clean package -Dmaven.test.skip=true
+
+# 复制 pom.xml 并下载依赖 (利用缓存)
+COPY main/manage-api/pom.xml .
+# 使用阿里云 Maven 镜像 (已经在 pom.xml 中配置)
+RUN mvn dependency:go-offline -B
+
+# 复制源码并构建
+COPY main/manage-api/src ./src
+RUN mvn clean package -Dmaven.test.skip=true -DskipTests -B
 
 # 第三阶段：构建最终镜像
 FROM bellsoft/liberica-runtime-container:jre-21-glibc

@@ -1,7 +1,55 @@
 .git
+.gitignore
 __pycache__
 *.pyc
-.env
-Dockerfile
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.DS_Store
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Node
+**/node_modules
+**/npm-debug.log
+**/dist
+**/.output
+**/.nuxt
+
+# Java/Maven
+**/target
+**/*.class
+**/*.jar
+**/*.war
+**/*.nar
+**/*.ear
+**/*.log
+**/*.zip
+**/*.tar.gz
+**/*.rar
+
+# IDE
+.idea
+.vscode
+*.swp
+*.iml
+
+# Temp
 tmp/
+temp/
 data/
